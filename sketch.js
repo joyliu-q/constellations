@@ -1,9 +1,15 @@
-let dots = [];
 let lastClickedDot = null;
 let constellationLines = [];
+let qt = null;
+let DISTANCE_THRESHOLD = 10;
+let width = null;
+let height = null;
 
 function setup() {
-  createCanvas(window.innerWidth, window.innerHeight);
+  width = window.innerWidth;
+  height = window.innerHeight;
+  qt = new QuadTree(new Rectangle(width / 2, height / 2, width / 2, height / 2), 4);
+  createCanvas(width, height);
   generateDots(50);
 }
 
@@ -11,19 +17,18 @@ function generateDots(numDots) {
   for (let i = 0; i < numDots; i++) {
     let x = random(width);
     let y = random(height);
-    ellipse(x, y, 10, 10);
-    dots.push(createVector(x, y));
+    qt.insert(new Point(x, y));
   }
 }
 
 function draw() {
-  background(255);
-  for (let dot of dots) {
-    fill(0);
-    ellipse(dot.x, dot.y, 10, 10);
+  for (let dot of qt) {
+    console.log(dot);
+    dot.draw();
   }
-  fill(0, 255, 0);
-  ellipse(lastClickedDot.x, lastClickedDot.y, 10, 10)
+  if (lastClickedDot) {
+    lastClickedDot.draw(true);
+  }
 
   for (let line of constellationLines) {
     fill(0, 0, 255);
@@ -34,19 +39,12 @@ function draw() {
 }
 
 function mousePressed() {
-  console.log("Mouse pressed at", mouseX, mouseY);
-  for (let dot of dots) {
-    let d = dist(mouseX, mouseY, dot.x, dot.y);
-    if (d < 50) {
-      if (lastClickedDot) {
-        console.log(dot)
-        console.log(lastClickedDot)
-        constellationLines.push(new Line(dot, lastClickedDot));
-      }
-      lastClickedDot = dot;
-      break;
-    }
+  let found = qt.query(new Rectangle(mouseX, mouseY, DISTANCE_THRESHOLD, DISTANCE_THRESHOLD));
+  console.log("Found", found);
+  if (found.length > 0) {
+    lastClickedDot = found[0];
   }
+  
   redraw()
 }
 
@@ -57,13 +55,15 @@ function keyPressed() {
     redraw();
   }
 }
+
 class Line {
   constructor(dot1, dot2) {
     this.dot1 = dot1;
     this.dot2 = dot2;
   }
 
-  draw() {
+  draw(isHighlighted = false) {
+    fill(0);
     line(this.dot1.x, this.dot1.y, this.dot2.x, this.dot2.y);
   }
 }

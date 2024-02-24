@@ -135,3 +135,10 @@ function toggleClearDialog() {
     clearDialogDiv.classList.add("invisible");
   }
 }
+
+function resetPage() {
+  let url = new URL(window.location.href);
+  url.searchParams.delete("seed");
+  window.history.pushState({}, '', url);
+  location.reload();
+}

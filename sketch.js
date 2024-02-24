@@ -26,6 +26,7 @@ function generateDots(numDots) {
     seed = random(1000000);
     url.searchParams.set("seed", seed);
     window.history.pushState({}, '', url);
+    randomSeed(seed);
   }
 
   for (let i = 0; i < numDots; i++) {

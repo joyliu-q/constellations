@@ -104,6 +104,10 @@ function keyPressed() {
   if (keyCode == SHIFT) {
     toggleHide();  
   }
+  // if it is D
+  if (keyCode == 68) {
+    deleteLine(mouseX, mouseY);
+  }
 }
 
 function keyReleased() {
@@ -141,4 +145,39 @@ function resetPage() {
   url.searchParams.delete("seed");
   window.history.pushState({}, '', url);
   location.reload();
+}
+
+// TODO: i added this last min so its very jank pls fix
+function deleteLine(mouseX, mouseY) {
+  // find line near mouseX and mouseY
+  let foundLine = null;
+  for (let line of constellationLines) {
+    // use Least Squares to find the closest point on the line
+    let x1 = line.dot1.x;
+    let y1 = line.dot1.y;
+    let x2 = line.dot2.x;
+    let y2 = line.dot2.y;
+    let x3 = mouseX;
+    let y3 = mouseY;
+    let u = ((x3 - x1) * (x2 - x1) + (y3 - y1) * (y2 - y1)) / ((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    let closestX = x1 + u * (x2 - x1);
+    let closestY = y1 + u * (y2 - y1);
+    let d = dist(mouseX, mouseY, closestX, closestY);
+    if (d < 10) {
+      foundLine = line;
+      break;
+    }
+  }
+  if (foundLine == null) {
+    return;
+  }
+  // remove line from constellationLines
+  let index = constellationLines.indexOf(foundLine);
+  if (index > -1) {
+    constellationLines.splice(index, 1);
+  }
+  // remove dot1 from foundLine
+  foundLine.dot1.toggle(false);
+  // remove dot2 from foundLine
+  foundLine.dot2.toggle(false);
 }

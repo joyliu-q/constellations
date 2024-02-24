@@ -55,7 +55,6 @@ function keyPressed() {
   }
 }
 
-
 function toggleHide() {
   let hideDiv = document.getElementById("hide");
   hideDiv.innerHTML = hideUnusedDots ? "Show Unused" : "Hide Unused";

@@ -18,6 +18,16 @@ function setup() {
 }
 
 function generateDots(numDots) {
+  let url = new URL(window.location.href);
+  seed = url.searchParams.get("seed");
+  if (seed) {
+    randomSeed(seed);
+  } else {
+    seed = random(1000000);
+    url.searchParams.set("seed", seed);
+    window.history.pushState({}, '', url);
+  }
+
   for (let i = 0; i < numDots; i++) {
     let x = random(width);
     let y = random(height);
@@ -36,7 +46,7 @@ function draw() {
   for (let line of constellationLines) {
     line.draw();
   }
-  if (placeholderLine) {
+  if (placeholderLine != null) {
     placeholderLine.draw();
   }
 }

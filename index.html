@@ -2,6 +2,7 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
     <script src="model.js"></script>
+    <script src="draggable.js"></script>
     <script src="sketch.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -29,11 +30,12 @@
         Constellations
       </h1>
     </div>
+    <!-- <div id="stickerTray">YO</div> -->
     <main>
       <div id="menu">
         <button id="saveConstellations" class="px-2 mx-1 bg-white" onclick="saveCanvas()">Save</button>
         <button id="clearConstellations" class="px-2 mx-1 bg-white" onclick="toggleClearDialog()">Clear</button>
-        <button id="hide" class="px-2 mx-1 bg-white" onclick="toggleHide()">Hide Unused</button>
+        <button id="hide" class="px-2 mx-1 bg-white" onclick="toggleHide()">Hide Unused [Shift]</button>
       </div>
       <div id="drawbox">
       </div>

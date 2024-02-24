@@ -1,15 +1,20 @@
-let dots = [];
-let lastClickedDot = null;
-let constellationLines = [];
+// Config
 let hideUnusedDots = false;
 
-// Config
+// Constellation Related Info
+let dots = [];
+let constellationLines = [];
+let lastClickedDot = null;
+let placeholderLine = null;
+
+// Animation
+let time = 0;
 
 function setup() {
   let p5 = createCanvas(window.innerWidth - 100, window.innerHeight - 120);
   p5.parent("drawbox");
-  generateDots(100);
-  noLoop();
+
+  generateDots(150);
 }
 
 function generateDots(numDots) {
@@ -22,13 +27,17 @@ function generateDots(numDots) {
 
 function draw() {
   clear();
+  time += 1;
   for (let dot of dots) {
     if (hideUnusedDots == false || dot.isUsed == true) {
-      dot.draw(isHighlighted = Object.is(dot, lastClickedDot));
+      dot.draw(time, isHighlighted = Object.is(dot, lastClickedDot));
     }
   }
   for (let line of constellationLines) {
     line.draw();
+  }
+  if (placeholderLine) {
+    placeholderLine.draw();
   }
 }
 
@@ -44,14 +53,51 @@ function mousePressed() {
       break;
     }
   }
-  redraw()
 }
+
+function mouseDragged() {
+  let foundDot = false;
+  for (let dot of dots) {
+    let d = dist(mouseX, mouseY, dot.x, dot.y);
+    if (d < 10) {
+      if (lastClickedDot) {
+        placeholderLine = new Line(lastClickedDot, dot, type = "placeholder");
+        foundDot = true;
+      }
+      break;
+    }
+  }
+  if (!foundDot) {
+    placeholderLine = new Line(lastClickedDot, new Dot(mouseX, mouseY), type="invalid");
+  }
+}
+
+function mouseReleased() {
+  if (placeholderLine.type != "placeholder") {
+    placeholderLine = null;
+    return;
+  }
+  constellationLines.push(placeholderLine);
+  lastClickedDot = placeholderLine.dot2;
+  lastClickedDot.toggle(true);
+  placeholderLine.dot1.toggle(true);
+  placeholderLine = null;
+}
+
 /// UI Functions (Buttons)
 function keyPressed() {
   if (keyCode == ESCAPE) {
     console.log("Escape pressed");
     lastClickedDot = null;
-    redraw();
+  }
+  if (keyCode == SHIFT) {
+    toggleHide();  
+  }
+}
+
+function keyReleased() {
+  if (keyCode == SHIFT) {
+    toggleHide();  
   }
 }
 
@@ -59,9 +105,6 @@ function toggleHide() {
   let hideDiv = document.getElementById("hide");
   hideDiv.innerHTML = hideUnusedDots ? "Show Unused" : "Hide Unused";
   hideUnusedDots = !hideUnusedDots;
-  console.log("OK SO")
-  console.log(hideUnusedDots)
-  redraw();
 }
 
 function confirmClear() {
@@ -71,7 +114,6 @@ function confirmClear() {
   constellationLines = [];
   lastClickedDot = null;
   toggleClearDialog();
-  redraw();
 }
 
 function toggleClearDialog() {

@@ -1,0 +1,24 @@
+body {
+  background: rgb(240,166,202);
+  background: linear-gradient(90deg, rgba(240,166,202,1) 0%, rgba(239,195,230,1) 35%, rgba(0,166,202,1) 100%);
+  /* background-color: #F0A6CA; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#menu {
+  display: flex;
+  width: 100%;
+  justify-content: left;
+  margin-left: 20px;
+}
+
+#drawbox {
+  border: 2px dotted white;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 24px;
+  background-color: #140F1B;
+}

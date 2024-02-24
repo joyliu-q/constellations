@@ -1,53 +1,52 @@
+let dots = [];
 let lastClickedDot = null;
 let constellationLines = [];
-let qt = null;
-let DISTANCE_THRESHOLD = 10;
-let width = null;
-let height = null;
+let hideUnusedDots = false;
+
+// Config
 
 function setup() {
-  width = window.innerWidth;
-  height = window.innerHeight;
-  qt = new QuadTree(new Rectangle(width / 2, height / 2, width / 2, height / 2), 4);
-  createCanvas(width, height);
-  generateDots(50);
+  let p5 = createCanvas(window.innerWidth - 100, window.innerHeight - 120);
+  p5.parent("drawbox");
+  generateDots(100);
+  noLoop();
 }
 
 function generateDots(numDots) {
   for (let i = 0; i < numDots; i++) {
     let x = random(width);
     let y = random(height);
-    qt.insert(new Point(x, y));
+    dots.push(new Dot(x, y));
   }
 }
 
 function draw() {
-  for (let dot of qt) {
-    console.log(dot);
-    dot.draw();
+  clear();
+  for (let dot of dots) {
+    if (hideUnusedDots == false || dot.isUsed == true) {
+      dot.draw(isHighlighted = Object.is(dot, lastClickedDot));
+    }
   }
-  if (lastClickedDot) {
-    lastClickedDot.draw(true);
-  }
-
   for (let line of constellationLines) {
-    fill(0, 0, 255);
-    stroke(5);
-    console.log(line)
     line.draw();
   }
 }
 
 function mousePressed() {
-  let found = qt.query(new Rectangle(mouseX, mouseY, DISTANCE_THRESHOLD, DISTANCE_THRESHOLD));
-  console.log("Found", found);
-  if (found.length > 0) {
-    lastClickedDot = found[0];
+  for (let dot of dots) {
+    let d = dist(mouseX, mouseY, dot.x, dot.y);
+    if (d < 10) {
+      if (lastClickedDot) {
+        constellationLines.push(new Line(dot, lastClickedDot));
+      }
+      lastClickedDot = dot;
+      dot.toggle();
+      break;
+    }
   }
-  
   redraw()
 }
-
+/// UI Functions (Buttons)
 function keyPressed() {
   if (keyCode == ESCAPE) {
     console.log("Escape pressed");
@@ -56,14 +55,31 @@ function keyPressed() {
   }
 }
 
-class Line {
-  constructor(dot1, dot2) {
-    this.dot1 = dot1;
-    this.dot2 = dot2;
-  }
 
-  draw(isHighlighted = false) {
-    fill(0);
-    line(this.dot1.x, this.dot1.y, this.dot2.x, this.dot2.y);
+function toggleHide() {
+  let hideDiv = document.getElementById("hide");
+  hideDiv.innerHTML = hideUnusedDots ? "Show Unused" : "Hide Unused";
+  hideUnusedDots = !hideUnusedDots;
+  console.log("OK SO")
+  console.log(hideUnusedDots)
+  redraw();
+}
+
+function confirmClear() {
+  for (let dot of dots) {
+    dot.isUsed = false;
+  }
+  constellationLines = [];
+  lastClickedDot = null;
+  toggleClearDialog();
+  redraw();
+}
+
+function toggleClearDialog() {
+  let clearDialogDiv = document.getElementById("clearDialogue");
+  if (clearDialogDiv.classList.contains("invisible")) {
+    clearDialogDiv.classList.remove("invisible");
+  } else {
+    clearDialogDiv.classList.add("invisible");
   }
 }

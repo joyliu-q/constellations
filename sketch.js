@@ -11,7 +11,7 @@ let placeholderLine = null;
 let time = 0;
 
 function setup() {
-  let p5 = createCanvas(window.innerWidth - 100, window.innerHeight - 120);
+  let p5 = createCanvas(window.innerWidth - 100, window.innerHeight - 150);
   p5.parent("drawbox");
 
   generateDots(150);

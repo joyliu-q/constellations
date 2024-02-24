@@ -176,8 +176,9 @@ function deleteLine(mouseX, mouseY) {
   if (index > -1) {
     constellationLines.splice(index, 1);
   }
+  // TODO: breaks encapsulation
   // remove dot1 from foundLine
-  foundLine.dot1.toggle(false);
+  foundLine.dot1.isUsed = false;
   // remove dot2 from foundLine
-  foundLine.dot2.toggle(false);
+  foundLine.dot2.isUsed = false;
 }

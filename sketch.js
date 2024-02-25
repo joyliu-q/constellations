@@ -2,16 +2,20 @@
 let hideUnusedDots = false;
 
 // Constellation Related Info
+let constellation = null;
 let dots = [];
 let constellationLines = [];
 let lastClickedDot = null;
+let lastClickedLine = null;
 let placeholderLine = null;
 
 // Animation
 let time = 0;
 
 function setup() {
-  let p5 = createCanvas(window.innerWidth - 100, window.innerHeight - 150);
+  constellations = new Constellations();
+  dotRadius = GET_DOT_RADIUS();
+  let p5 = createCanvas(constellations.getCanvasSize()[0], constellations.getCanvasSize()[1]);
   p5.parent("drawbox");
 
   generateDots(150);
@@ -84,6 +88,9 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
+  if (placeholderLine == null) {
+    return;
+  }
   if (placeholderLine.type != "placeholder") {
     placeholderLine = null;
     return;
@@ -98,7 +105,6 @@ function mouseReleased() {
 /// UI Functions (Buttons)
 function keyPressed() {
   if (keyCode == ESCAPE) {
-    console.log("Escape pressed");
     lastClickedDot = null;
   }
   if (keyCode == SHIFT) {
@@ -106,7 +112,9 @@ function keyPressed() {
   }
   // if it is D
   if (keyCode == 68) {
-    deleteLine(mouseX, mouseY);
+    lastClickedDot.toggle(false);
+    lastClickedDot = null;
+    deleteLine();
   }
 }
 
@@ -124,7 +132,7 @@ function toggleHide() {
 
 function confirmClear() {
   for (let dot of dots) {
-    dot.isUsed = false;
+    dot.toggle(false);
   }
   constellationLines = [];
   lastClickedDot = null;
@@ -147,38 +155,44 @@ function resetPage() {
   location.reload();
 }
 
-// TODO: i added this last min so its very jank pls fix
-function deleteLine(mouseX, mouseY) {
-  // find line near mouseX and mouseY
-  let foundLine = null;
+function deleteLine() {
   for (let line of constellationLines) {
     // use Least Squares to find the closest point on the line
     let x1 = line.dot1.x;
     let y1 = line.dot1.y;
     let x2 = line.dot2.x;
     let y2 = line.dot2.y;
-    let x3 = mouseX;
-    let y3 = mouseY;
-    let u = ((x3 - x1) * (x2 - x1) + (y3 - y1) * (y2 - y1)) / ((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    let u = ((mouseX - x1) * (x2 - x1) + (mouseY - y1) * (y2 - y1)) / ((x2 - x1) ** 2 + (y2 - y1) ** 2);
     let closestX = x1 + u * (x2 - x1);
     let closestY = y1 + u * (y2 - y1);
     let d = dist(mouseX, mouseY, closestX, closestY);
     if (d < 10) {
-      foundLine = line;
+      lastClickedLine = line;
+      line.type = "selected";
       break;
     }
   }
-  if (foundLine == null) {
+
+  if (lastClickedLine == null) {
     return;
   }
   // remove line from constellationLines
-  let index = constellationLines.indexOf(foundLine);
+  let index = constellationLines.indexOf(lastClickedLine);
   if (index > -1) {
     constellationLines.splice(index, 1);
   }
-  // TODO: breaks encapsulation
-  // remove dot1 from foundLine
-  foundLine.dot1.isUsed = false;
-  // remove dot2 from foundLine
-  foundLine.dot2.isUsed = false;
+  // remove dot1, dot2 from foundLine
+  lastClickedLine.dot1.toggle(false);
+  lastClickedLine.dot2.toggle(false);
+  lastClickedLine = null;
+}
+
+function windowResized() {
+  resizeCanvas(constellations.getCanvasSize()[0], constellations.getCanvasSize()[1]);
+}
+
+class Constellations {
+  getCanvasSize() {
+    return [windowWidth - 100, windowHeight - 150];
+  }
 }

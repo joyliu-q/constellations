@@ -1,4 +1,23 @@
 
+// Responsive
+let dotRadius = 5;
+const BREAK_POINTS = [1024, 768, 425, 375];
+function GET_DOT_RADIUS() {
+  if (windowWidth > BREAK_POINTS[0]) {
+    return 10;
+  }
+  if (windowWidth > BREAK_POINTS[1]) {
+    return 20;
+  }
+  if (windowWidth > BREAK_POINTS[2]) {
+    return 15;
+  }
+  if (windowWidth > BREAK_POINTS[3]) {
+    return 12;
+  }
+  return 10;
+}
+
 class Dot {
   x;
   y;
@@ -11,25 +30,23 @@ class Dot {
 
   draw(time, isHighlighted = false) {
     let addedRadius = 5 * Math.sin(time / 10);
-    console.log(addedRadius);
 
     if (isHighlighted) {
       fill(255, 175, 204);
-      ellipse(this.x, this.y, 20 + addedRadius, 20 + addedRadius);
+      ellipse(this.x, this.y, 10 + GET_DOT_RADIUS() + addedRadius, 10 + GET_DOT_RADIUS() + addedRadius);
     }
     if (this.isUsed) {
       fill(189, 224, 254)
       noStroke()
     } else {
       fill(255, 255, 255)
-      stroke(0)
       addedRadius = 0
     }
-    ellipse(this.x, this.y, 10 + addedRadius, 10 + addedRadius);
+    ellipse(this.x, this.y, GET_DOT_RADIUS() + addedRadius, GET_DOT_RADIUS() + addedRadius);
   }
 
-  toggle(isTrue = false) {
-    this.isUsed = isTrue ? true : !this.isUsed;
+  toggle(newValue = null) {
+    this.isUsed = newValue ?? !this.isUsed;
   }
 }
 
@@ -42,6 +59,7 @@ class Line {
     switch (type) {
       case "normal":
       case "placeholder":
+      case "selected":
       case "invalid":
         this.type = type;
         break;
@@ -51,13 +69,15 @@ class Line {
   }
 
   getColor() {
-    switch (type) {
+    switch (this.type) {
       case "normal":
         return "#9c89b8";
       case "placeholder":
         return "#B8BEDD";
       case "invalid":
         return "#EFC3E6";
+      case "selected":
+        return "#FFAFCC";
     } 
   }
 

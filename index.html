@@ -2,7 +2,6 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.js"></script>
     <script src="model.js"></script>
-    <script src="draggable.js"></script>
     <script src="sketch.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -26,10 +25,10 @@
   </head>
   <body>
     <div class="text-center">
-      <h1 class="text-3xl font-bold text-head py-2">
+      <h1 class="text-4xl font-bold text-head py-2">
         ✧･ﾟ* Constellations : *･ﾟ✧
       </h1>
-      <p class="text-sm text-head  pb-2">
+      <p class="text-sm text-head pb-2">
         Click and drag to create your own constellations!
         [Esc] to deselect. [D] to delete lines.
       </p>
@@ -41,7 +40,7 @@
         <button id="hide" class="px-2 mx-1 bg-white" onclick="toggleHide()">Hide Unused [Shift]</button>
         <button id="reset" class="px-2 mx-1 bg-white" onclick="resetPage()">Reset</button>
       </div>
-      <div id="drawbox">
+      <div id="drawbox" draggable="false">
       </div>
     </main>
     <div id="clearDialogue" class="invisible relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">

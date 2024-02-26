@@ -28,12 +28,26 @@ class Dot {
     this.isUsed = false;
   }
 
-  draw(time, isHighlighted = false) {
+  getX(c) {
+    if (!c) {
+      throw new Error("Canvas is not defined");
+    }
+    return this.x * c.getWidth();
+  }
+
+  getY(c) {
+    if (!c) {
+      throw new Error("Canvas is not defined");
+    }
+    return this.y * c.getHeight();
+  }
+
+  draw(c, time, isHighlighted = false) {
     let addedRadius = 5 * Math.sin(time / 10);
 
     if (isHighlighted) {
       fill(255, 175, 204);
-      ellipse(this.x, this.y, 10 + GET_DOT_RADIUS() + addedRadius, 10 + GET_DOT_RADIUS() + addedRadius);
+      ellipse(this.getX(c), this.getY(c), 10 + GET_DOT_RADIUS() + addedRadius, 10 + GET_DOT_RADIUS() + addedRadius);
     }
     if (this.isUsed) {
       fill(189, 224, 254)
@@ -42,7 +56,7 @@ class Dot {
       fill(255, 255, 255)
       addedRadius = 0
     }
-    ellipse(this.x, this.y, GET_DOT_RADIUS() + addedRadius, GET_DOT_RADIUS() + addedRadius);
+    ellipse(this.getX(c), this.getY(c), GET_DOT_RADIUS() + addedRadius, GET_DOT_RADIUS() + addedRadius);
   }
 
   toggle(newValue = null) {
@@ -53,6 +67,9 @@ class Dot {
 // Why is this in javascript and not typescript??? Crying
 class Line {
   constructor(dot1, dot2, type = "normal") {
+    if (!(dot1 instanceof Dot) || !(dot2 instanceof Dot)) {
+      throw new Error("Invalid dot type");
+    }
     this.dot1 = dot1;
     this.dot2 = dot2;
 
@@ -81,10 +98,10 @@ class Line {
     } 
   }
 
-  draw() {
+  draw(c) {
     stroke(this.getColor());
     strokeWeight(4);
-    line(this.dot1.x, this.dot1.y, this.dot2.x, this.dot2.y);
+    line(this.dot1.getX(c), this.dot1.getY(c), this.dot2.getX(c), this.dot2.getY(c));
     strokeWeight(1);
   }
 }

@@ -2,7 +2,7 @@
 let hideUnusedDots = false;
 
 // Constellation Related Info
-let constellation = null;
+let constellations = null;
 let dots = [];
 let constellationLines = [];
 let lastClickedDot = null;
@@ -13,9 +13,20 @@ let placeholderLine = null;
 let time = 0;
 
 function setup() {
-  constellations = new Constellations();
+  // Prevent drag on drawbox
+  const drawbox = document.getElementById('drawbox');
+  drawbox.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Prevents scrolling when touch is initiated
+  });
+
+  drawbox.addEventListener('mousedown', (e) => {
+    e.preventDefault(); // Prevents scrolling when mouse click is initiated
+  });
+
+
+  constellations = new Constellations(windowWidth, windowHeight);
   dotRadius = GET_DOT_RADIUS();
-  let p5 = createCanvas(constellations.getCanvasSize()[0], constellations.getCanvasSize()[1]);
+  let p5 = createCanvas(constellations.getWidth(), constellations.getHeight());
   p5.parent("drawbox");
 
   generateDots(150);
@@ -34,8 +45,8 @@ function generateDots(numDots) {
   }
 
   for (let i = 0; i < numDots; i++) {
-    let x = random(width);
-    let y = random(height);
+    let x = random(1);
+    let y = random(1);
     dots.push(new Dot(x, y));
   }
 }
@@ -45,22 +56,22 @@ function draw() {
   time += 1;
   for (let dot of dots) {
     if (hideUnusedDots == false || dot.isUsed == true) {
-      dot.draw(time, isHighlighted = Object.is(dot, lastClickedDot));
+      dot.draw(constellations, time, isHighlighted = Object.is(dot, lastClickedDot));
     }
   }
   for (let line of constellationLines) {
-    line.draw();
+    line.draw(constellations);
   }
   if (placeholderLine != null) {
-    placeholderLine.draw();
+    placeholderLine.draw(constellations);
   }
 }
 
 function mousePressed() {
   for (let dot of dots) {
-    let d = dist(mouseX, mouseY, dot.x, dot.y);
+    let d = dist(mouseX, mouseY, dot.getX(constellations), dot.getY(constellations));
     if (d < 10) {
-      if (lastClickedDot) {
+      if (dot && lastClickedDot) {
         constellationLines.push(new Line(dot, lastClickedDot));
       }
       lastClickedDot = dot;
@@ -73,17 +84,17 @@ function mousePressed() {
 function mouseDragged() {
   let foundDot = false;
   for (let dot of dots) {
-    let d = dist(mouseX, mouseY, dot.x, dot.y);
+    let d = dist(mouseX, mouseY, dot.getX(constellations), dot.getY(constellations));
     if (d < 10) {
-      if (lastClickedDot) {
+      if (dot && lastClickedDot) {
         placeholderLine = new Line(lastClickedDot, dot, type = "placeholder");
         foundDot = true;
       }
       break;
     }
   }
-  if (!foundDot) {
-    placeholderLine = new Line(lastClickedDot, new Dot(mouseX, mouseY), type="invalid");
+  if (!foundDot && lastClickedDot) {
+    placeholderLine = new Line(lastClickedDot, new Dot(mouseX / constellations.getWidth(), mouseY / constellations.getHeight()), type="invalid");
   }
 }
 
@@ -158,10 +169,10 @@ function resetPage() {
 function deleteLine() {
   for (let line of constellationLines) {
     // use Least Squares to find the closest point on the line
-    let x1 = line.dot1.x;
-    let y1 = line.dot1.y;
-    let x2 = line.dot2.x;
-    let y2 = line.dot2.y;
+    let x1 = line.dot1.getX(constellations);
+    let y1 = line.dot1.getY(constellations);
+    let x2 = line.dot2.getX(constellations);
+    let y2 = line.dot2.getY(constellations);
     let u = ((mouseX - x1) * (x2 - x1) + (mouseY - y1) * (y2 - y1)) / ((x2 - x1) ** 2 + (y2 - y1) ** 2);
     let closestX = x1 + u * (x2 - x1);
     let closestY = y1 + u * (y2 - y1);
@@ -188,11 +199,25 @@ function deleteLine() {
 }
 
 function windowResized() {
-  resizeCanvas(constellations.getCanvasSize()[0], constellations.getCanvasSize()[1]);
+  if (!windowHeight || !windowWidth) {
+    return;
+  }
+  constellations.width = windowWidth - 100;
+  constellations.height = windowHeight - 150;
+  resizeCanvas(constellations.getWidth(), constellations.getHeight());
 }
 
 class Constellations {
-  getCanvasSize() {
-    return [windowWidth - 100, windowHeight - 150];
+  constructor(width, height) {
+    this.width = width - 100;
+    this.height = height - 150;
+  }
+
+  getWidth() {
+    return this.width;
+  }
+
+  getHeight() {
+    return this.height;
   }
 }

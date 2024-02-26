@@ -25,7 +25,6 @@ function setup() {
 
 
   constellations = new Constellations(windowWidth, windowHeight);
-  dotRadius = GET_DOT_RADIUS();
   let p5 = createCanvas(constellations.getWidth(), constellations.getHeight());
   p5.parent("drawbox");
 
@@ -68,9 +67,12 @@ function draw() {
 }
 
 function mousePressed() {
+  // I would like to preface this by saying I originally made a Quad tree and realized
+  // it is overengineering for a smol project like this
+  // TODO: maybe in the future
   for (let dot of dots) {
     let d = dist(mouseX, mouseY, dot.getX(constellations), dot.getY(constellations));
-    if (d < 10) {
+    if (d < constellations.getDistanceThreshold()) {
       if (dot && lastClickedDot) {
         constellationLines.push(new Line(dot, lastClickedDot));
       }
@@ -177,7 +179,7 @@ function deleteLine() {
     let closestX = x1 + u * (x2 - x1);
     let closestY = y1 + u * (y2 - y1);
     let d = dist(mouseX, mouseY, closestX, closestY);
-    if (d < 10) {
+    if (d < constellations.getDistanceThreshold()) {
       lastClickedLine = line;
       line.type = "selected";
       break;
@@ -202,22 +204,6 @@ function windowResized() {
   if (!windowHeight || !windowWidth) {
     return;
   }
-  constellations.width = windowWidth - 100;
-  constellations.height = windowHeight - 150;
+  constellations.recalculate(windowWidth, windowHeight);
   resizeCanvas(constellations.getWidth(), constellations.getHeight());
-}
-
-class Constellations {
-  constructor(width, height) {
-    this.width = width - 100;
-    this.height = height - 150;
-  }
-
-  getWidth() {
-    return this.width;
-  }
-
-  getHeight() {
-    return this.height;
-  }
 }

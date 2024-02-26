@@ -1,23 +1,4 @@
 
-// Responsive
-let dotRadius = 5;
-const BREAK_POINTS = [1024, 768, 425, 375];
-function GET_DOT_RADIUS() {
-  if (windowWidth > BREAK_POINTS[0]) {
-    return 10;
-  }
-  if (windowWidth > BREAK_POINTS[1]) {
-    return 20;
-  }
-  if (windowWidth > BREAK_POINTS[2]) {
-    return 15;
-  }
-  if (windowWidth > BREAK_POINTS[3]) {
-    return 12;
-  }
-  return 10;
-}
-
 class Dot {
   x;
   y;
@@ -47,7 +28,7 @@ class Dot {
 
     if (isHighlighted) {
       fill(255, 175, 204);
-      ellipse(this.getX(c), this.getY(c), 10 + GET_DOT_RADIUS() + addedRadius, 10 + GET_DOT_RADIUS() + addedRadius);
+      ellipse(this.getX(c), this.getY(c), 10 + c.getDotRadius() + addedRadius, 10 + c.getDotRadius() + addedRadius);
     }
     if (this.isUsed) {
       fill(189, 224, 254)
@@ -56,7 +37,7 @@ class Dot {
       fill(255, 255, 255)
       addedRadius = 0
     }
-    ellipse(this.getX(c), this.getY(c), GET_DOT_RADIUS() + addedRadius, GET_DOT_RADIUS() + addedRadius);
+    ellipse(this.getX(c), this.getY(c), c.getDotRadius() + addedRadius, c.getDotRadius() + addedRadius);
   }
 
   toggle(newValue = null) {
@@ -104,4 +85,51 @@ class Line {
     line(this.dot1.getX(c), this.dot1.getY(c), this.dot2.getX(c), this.dot2.getY(c));
     strokeWeight(1);
   }
+}
+
+
+class Constellations {
+  constructor(width, height) {
+    this.recalculate(width, height);
+  }
+
+  recalculate(width, height) {
+    this.width = width - 100;
+    this.height = height - 150;
+    this.distanceThreshold = Constellations._calc_distance_threshold();
+    this.dotRadius = Constellations._calc_dot_radius();
+  }
+
+  // "Private" helper methods
+  static _break_points = [425, 768, 1024];
+  static _calc_dot_radius() {
+    if (windowWidth < Constellations._break_points[0]) {
+      return 20;
+    }
+    if (windowWidth < Constellations._break_points[1]) {
+      return 16;
+    }
+    if (windowWidth < Constellations._break_points[2]) {
+      return 14;
+    }
+    return 10;
+  }
+  static _calc_distance_threshold() {
+    return this._calc_dot_radius() * 2;
+  }
+
+  getDistanceThreshold() {
+    return this.distanceThreshold;
+  }
+  getDotRadius() {
+    return this.dotRadius;
+  }
+
+  getWidth() {
+    return this.width;
+  }
+
+  getHeight() {
+    return this.height;
+  }  
 }
